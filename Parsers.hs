@@ -52,7 +52,7 @@ parseExpr = parseAtom
             <|> parseList'
     where parseList' = char '(' *> (try parseList <|> parseDottedList) <* char ')'
 
-readExpr :: String -> String
+readExpr :: String -> LispVal
 readExpr exp = case parse parseExpr "leme" exp of
-    Left err -> "Error: " ++ show err
-    Right val -> "Found: " ++ show val
+    Left err -> String $ "Error: " ++ show err
+    Right val -> val
