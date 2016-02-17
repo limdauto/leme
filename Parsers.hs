@@ -55,4 +55,4 @@ parseExpr = parseAtom
 readExpr :: String -> String
 readExpr exp = case parse parseExpr "leme" exp of
     Left err -> "Error: " ++ show err
-    Right val -> "yay"
+    Right val -> "Found: " ++ show val
