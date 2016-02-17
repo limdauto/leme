@@ -8,5 +8,5 @@ much monkey-coding to be educational.
 ## TODO
 
 - An full intepreter with a REPL
-- A webserver that provides the intepreter as a service
-- An IDE, probably built on top of Atom
+- A Yesod/Snap webserver that provides the intepreter as a service
+- An IDE, probably built on top of Atom, with Purescript
