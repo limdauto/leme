@@ -1,5 +1,6 @@
 module Parsers where
 
+import qualified Control.Monad.Except as E
 import Text.ParserCombinators.Parsec hiding (spaces)
 
 import LispData
@@ -52,7 +53,7 @@ parseExpr = parseAtom
             <|> parseList'
     where parseList' = char '(' *> (try parseList <|> parseDottedList) <* char ')'
 
-readExpr :: String -> LispVal
+readExpr :: String -> ThrowsError LispVal
 readExpr exp = case parse parseExpr "leme" exp of
-    Left err -> String $ "Error: " ++ show err
-    Right val -> val
+    Left err -> E.throwError $ Parser err
+    Right val -> return val
