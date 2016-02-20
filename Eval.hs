@@ -1,3 +1,5 @@
+{-# LANGUAGE ExistentialQuantification #-}
+
 module Eval where
 
 import Control.Monad.Except as E
@@ -70,4 +72,53 @@ unpackStr notString  = E.throwError $ TypeMismatch "string" notString
 unpackBool :: LispVal -> ThrowsError Bool
 unpackBool (Bool b) = return b
 unpackBool notBool  = E.throwError $ TypeMismatch "boolean" notBool
+
+car :: [LispVal] -> ThrowsError LispVal
+car [List (x : xs)]         = return x
+car [DottedList (x : xs) _] = return x
+car [badArg]                = throwError $ TypeMismatch "pair" badArg
+car badArgList              = throwError $ NumArgs 1 badArgList
+
+cdr :: [LispVal] -> ThrowsError LispVal
+cdr [List (x : xs)]         = return $ List xs
+cdr [DottedList [_] x]      = return x
+cdr [DottedList (_ : xs) x] = return $ DottedList xs x
+cdr [badArg]                = throwError $ TypeMismatch "pair" badArg
+cdr badArgList              = throwError $ NumArgs 1 badArgList
+
+cons :: [LispVal] -> ThrowsError LispVal
+cons [x1, List []]            = return $ List [x1]
+cons [x, DottedList xs xlast] = return $ DottedList (x : xs) xlast
+cons [x1, x2]                 = return $ DottedList [x1] x2
+cons badArgList               = throwError $ NumArgs 2 badArgList
+
+-- strict eqv
+eqv :: [LispVal] -> ThrowsError LispVal
+eqv [Bool arg1, Bool arg2]             = return $ Bool $ arg1 == arg2
+eqv [Number arg1, Number arg2]         = return $ Bool $ arg1 == arg2
+eqv [String arg1, String arg2]         = return $ Bool $ arg1 == arg2
+eqv [Atom arg1, Atom arg2]             = return $ Bool $ arg1 == arg2
+eqv [DottedList xs x, DottedList ys y] = eqv [List $ xs ++ [x], List $ ys ++ [y]]
+eqv [List arg1, List arg2]             = return $ Bool $ (length arg1 == length arg2) && all eqvPair (zip arg1 arg2)
+                                            where eqvPair (x, y) = case eqv [x, y] of
+                                                                    Left err -> False
+                                                                    Right (Bool val) -> val
+eqv [_, _]                             = return $ Bool False
+eqv badArgList                         = throwError $ NumArgs 2 badArgList
+
+-- weak eqv
+data Unpacker = forall a. Eq a => AnyUnpacker (LispVal -> ThrowsError a)
+
+unpackEquals :: LispVal -> LispVal -> Unpacker -> ThrowsError Bool
+unpackEquals arg1 arg2 (AnyUnpacker unpacker) = do
+    unpacked1 <- unpacker arg1
+    unpacked2 <- unpacker arg2
+    return (unpacked1 == unpacked2) `catchError` const (return False)
+
+equal :: [LispVal] -> ThrowsError LispVal
+equal args@[arg1, arg2] = liftM2 or' strongEquals weakEquals
+    where or' (Bool x) y = Bool (x || y)
+          strongEquals   = eqv args
+          weakEquals     = let unpackers = [AnyUnpacker unpackNum, AnyUnpacker unpackBool, AnyUnpacker unpackStr] in
+                           liftM or $ mapM (unpackEquals arg1 arg2) unpackers
 
