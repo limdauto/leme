@@ -1,6 +1,10 @@
 module LispData where
 
+import Control.Monad.Except as E
+import Data.IORef
 import qualified Text.ParserCombinators.Parsec as P
+
+type Env = IORef [(String, IORef LispVal)]
 
 data LispVal = Atom String
              | List [LispVal]
@@ -8,6 +12,9 @@ data LispVal = Atom String
              | Number Integer
              | String String
              | Bool Bool
+             | PrimitiveFunc ([LispVal] -> ThrowsError LispVal)
+             | Func { params :: [String], vararg :: Maybe String,
+                      body :: [LispVal], closure :: Env }
 
 data LispError = NumArgs Integer [LispVal]
                | TypeMismatch String LispVal
@@ -18,6 +25,19 @@ data LispError = NumArgs Integer [LispVal]
                | Default String
 
 type ThrowsError = Either LispError
+type IOThrowsError = E.ExceptT LispError IO
+
+trapError action = action `catchError` (return . show)
+
+extractValue :: ThrowsError a -> a
+extractValue (Right val) = val
+
+liftThrows :: ThrowsError a -> IOThrowsError a
+liftThrows (Left err) = throwError err
+liftThrows (Right val) = return val
+
+runIOThrows :: IOThrowsError String -> IO String
+runIOThrows action = liftM extractValue $ runExceptT (trapError action)
 
 instance Show LispVal where
     show (String contents) = "\"" ++ contents ++ "\""
