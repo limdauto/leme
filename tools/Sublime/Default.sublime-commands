@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "SublimeREPL: Leme",
+        "command": "run_existing_window_command", "args":
+        {
+            "id": "repl_leme",
+            "file": "config/Leme/Main.sublime-menu"
+        }
+    }
+]

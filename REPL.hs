@@ -34,4 +34,8 @@ runOne args = do
   (runIOThrows $ liftM show $ eval env (List [Atom "load", String (head args)])) >>= hPutStrLn stderr
 
 runRepl :: IO ()
-runRepl = primitiveBindings >>= until_ (== "quit") (readPrompt "leme >> ") . evalAndPrint
+runRepl = do
+  putStrLn "A toy Scheme implementation by Lim H."
+  env <- primitiveBindings
+  runIOThrows $ liftM show $ eval env (List [Atom "load", String "/opt/leme/stdlib.scm"])
+  until_ (== "quit") (readPrompt "leme >> ") . evalAndPrint $ env

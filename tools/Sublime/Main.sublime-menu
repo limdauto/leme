@@ -1,0 +1,33 @@
+[
+     {
+        "id": "tools",
+        "children":
+        [{
+            "caption": "SublimeREPL",
+            "mnemonic": "L",
+            "id": "SublimeREPL",
+            "children":
+            [
+                {"command": "repl_open",
+                 "caption": "Leme",
+                 "id": "repl_leme",
+                 "mnemonic": "E",
+                 "args": {
+                    "type": "subprocess",
+                    "encoding": {"windows": "$win_cmd_encoding",
+                                 "linux": "utf-8",
+                                 "osx": "utf-8"},
+                    "cmd": {"windows": ["leme"],
+                            "linux": ["leme"],
+                            "osx": ["leme"]},
+                    "cwd": "$file_path",
+                    "cmd_postfix": "\n",
+                    "env": {},
+                    "suppress_echo": false,
+                    "syntax": "Packages/Scheme/Scheme.tmLanguage"
+                    }
+                }
+            ]
+        }]
+    }
+]
