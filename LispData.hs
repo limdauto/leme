@@ -3,6 +3,7 @@ module LispData where
 import Control.Monad.Except as E
 import Data.IORef
 import qualified Text.ParserCombinators.Parsec as P
+import System.IO
 
 type Env = IORef [(String, IORef LispVal)]
 
@@ -16,6 +17,7 @@ data LispVal = Atom String
              | Func { params :: [String], vararg :: Maybe String,
                       body :: [LispVal], closure :: Env }
              | IOFunc ([LispVal] -> IOThrowsError LispVal)
+             | Port Handle
 
 data LispError = NumArgs Integer [LispVal]
                | TypeMismatch String LispVal
@@ -53,6 +55,8 @@ instance Show LispVal where
       "(lambda (" ++ unwords (map show args) ++ vararg' ++ ") ...)"
         where vararg' = case varargs of Nothing -> ""
                                         Just arg -> " . " ++ arg
+    show (Port _) = "<IO port>"
+    show (IOFunc _) = "<IO primitive>"
 
 instance Show LispError where
     show (UnboundVar message varname)  = message ++ ": " ++ varname
