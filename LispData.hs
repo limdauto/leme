@@ -15,6 +15,7 @@ data LispVal = Atom String
              | PrimitiveFunc ([LispVal] -> ThrowsError LispVal)
              | Func { params :: [String], vararg :: Maybe String,
                       body :: [LispVal], closure :: Env }
+             | IOFunc ([LispVal] -> IOThrowsError LispVal)
 
 data LispError = NumArgs Integer [LispVal]
                | TypeMismatch String LispVal
@@ -47,6 +48,11 @@ instance Show LispVal where
     show (Bool False) = "#f"
     show (List contents) = "(" ++ unwordsList contents ++ ")"
     show (DottedList x xs) = "(" ++ unwordsList x ++ " . " ++ show xs ++ ")"
+    show (PrimitiveFunc _) = "<primitive>"
+    show (Func {params = args, vararg = varargs, body = body, closure = env}) =
+      "(lambda (" ++ unwords (map show args) ++ vararg' ++ ") ...)"
+        where vararg' = case varargs of Nothing -> ""
+                                        Just arg -> " . " ++ arg
 
 instance Show LispError where
     show (UnboundVar message varname)  = message ++ ": " ++ varname

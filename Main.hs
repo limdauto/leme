@@ -1,11 +1,13 @@
 module Main where
 
 import System.Environment
-import System.IO
 
-import Eval
-import Parsers
+import REPL
 
 main :: IO ()
-main = getArgs >>= print . eval . readExpr . head
-
+main = do
+  args <- getArgs
+  case length args of
+    0 -> runRepl
+    1 -> runOne (head args)
+    otherwise -> putStrLn "Program takes only 0 or 1 argument"
