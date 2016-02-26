@@ -29,6 +29,8 @@ leme factorial.leme 10
 
 Right now there is some primitive support for Sublime Text and SublimeREPL inside [tools directory](tools/Sublime).
 
+![Demo](images/leme_demo.png)
+
 ## Roadmap
 
 Version 1.0 is pretty much a verbatim copy from WYSAS. The goal for [version 2.0](https://github.com/limdauto/leme/milestones/v2.0)
