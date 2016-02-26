@@ -31,7 +31,6 @@ Right now there is some primitive support for Sublime Text and SublimeREPL insid
 
 ## Roadmap
 
-Version 1.0 is pretty much a verbatim copy from WYSAS. The goal for 2.0 is better build, distribution and a richer standard library,
-including string manipulation and networking.
-
+Version 1.0 is pretty much a verbatim copy from WYSAS. The goal for [version 2.0](https://github.com/limdauto/leme/milestones/v2.0)
+is better build, distribution and a richer standard library, including string manipulation and networking.
 
